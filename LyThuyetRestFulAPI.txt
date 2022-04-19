@@ -1,0 +1,125 @@
+Restful api là gì
+  admin  -     17/08/2021  79
+
+Có thể nói nguyên lí REST và cấu trúc dữ liệu RESTful được biết đến rộng rãi trong giới lập trình web nói chung và lập trình ứng dụng nói riêng.
+
+Bạn đang xem: Restful api là gì
+
+
+Có thể nói bản thân REST không phải là một loại công nghệ. Nó là phương thức tạo API với nguyên lý tổ chức nhất định. Những nguyên lý này nhằm hướng dẫn lập trình viên tạo môi trường xử lý API request được toàn diện.
+
+Để hiểu rõ hơn về RESTful API ta sẽ đi lần lượt giải thích các khái niệm API, REST hay RESTful.
+
+
+*
+*
+*
+*
+REST hoạt động chủ yếu dựa vào giao thức HTTP. Các hoạt động cơ bản nêu trên sẽ sử dụng những phương thức HTTP riêng.
+
+GET (SELECT): Trả về một Resource hoặc một danh sách Resource.POST (CREATE): Tạo mới một Resource.PUT (UPDATE): Cập nhật thông tin cho Resource.DELETE (DELETE): Xoá một Resource.
+Những phương thức hay hoạt động này thường được gọi là CRUD tương ứng với Create, Read, Update, Delete – Tạo, Đọc, Sửa, Xóa.
+
+Hiện tại đa số lập trình viên viết RESTful API giờ đây đều chọn JSON là format chính thức nhưng cũng có nhiều người chọn XML làm format, nói chung dùng thế nào cũng được miễn tiện và nhanh.
+
+Authentication và dữ liệu trả về
+RESTful API không sử dụng session và cookie, nó sử dụng một access_token với mỗi request. Dữ liệu trả về thường có cấu trúc như sau:
+
+{ "data" : { "id": "1", "name": "vietvuevent.vn" }}
+
+Status code
+Khi chúng ta request một API nào đó thường thì sẽ có vài status code để nhận biết sau:
+200 OK – Trả về thành công cho những phương thức GET, PUT, PATCH hoặc DELETE.201 Created – Trả về khi một Resouce vừa được tạo thành công.204 No Content – Trả về khi Resource xoá thành công.304 Not Modified – Client có thể sử dụng dữ liệu cache.400 Bad Request – Request không hợp lệ401 Unauthorized – Request cần có auth.403 Forbidden – bị từ chối không cho phép.404 Not Found – Không tìm thấy resource từ URI405 Method Not Allowed – Phương thức không cho phép với user hiện tại.410 Gone – Resource không còn tồn tại, Version cũ đã không còn hỗ trợ.415 Unsupported Media Type – Không hỗ trợ kiểu Resource này.422 Unprocessable Entity – Dữ liệu không được xác thực429 Too Many Requests – Request bị từ chối do bị giới hạn
+Nên sử dụng Version
+Luôn sử dụng version để khi bạn cần nâng cấp API mà vẫn hỗ trợ các API cũ.
+
+Xây dựng API với Laravel
+Lấy việc xây dựng api trên Laravel để làm ví dụ, trước khi đi vào ta tổng quan về Http Request.
+
+HTTP Request
+HTTP request có tất cả 9 loại method , 2 loại được sử dụng phổ biến nhất là GET và POST
+
+GET: được sử dụng để lấy thông tin từ server theo URI đã cung cấp.HEAD: giống với GET nhưng response trả về không có body, chỉ có header.POST: gửi thông tin tới sever thông qua các biểu mẫu http.PUT: ghi đè tất cả thông tin của đối tượng với những gì được gửi lên.PATCH: ghi đè các thông tin được thay đổi của đối tượng.DELETE: xóa tài nguyên trên server.CONNECT: thiết lập một kết nối tới server theo URI.OPTIONS: mô tả các tùy chọn giao tiếp cho resource.TRACE: thực hiện một bài test loop – back theo đường dẫn đến resource.
+
+Xem thêm: Tài Khoản Tiết Kiệm ( Savings Account Là Gì ? Những Điều Cần Biết Về Saving Account
+
+RESTful Route
+Viết Api thì sẽ khai báo router vào file routes/api.php thay vì sử dụng file routes/web.php. Các setting mặc cho file api.php trong laravel:
+
+Url: những route được khai báo trong file này mặc định có prefix url là api (ví dụ: vietvuevent.vn/api/products)Middleware: mặc định sẽ được gán Middleware Group là api, trong file app/Http/Kernel sẽ thấy 2 middleware thuộc Middleware Group: api là throttle (giới hạn request / time) và bindings (model binding).
+Có thể tùy chỉnh giá trị mặc định này trong method mapApiRoutes trong file app/Providers/RouteServiceProvider.php
+
+Tạo các route để thực hiện các thao tác như CRUD (Create, Read, Update, Delete):
+
+// Lấy list sản phẩmRoute::get("products", "Api\ProductController
+index")->name("products.index");// Lấy detail sản phẩm theo idRoute::get("products/{id}", "Api\ProductController
+store")->name("products.store");// Update info sản phẩm theo id# Sử dụng put nếu update toàn bộ các fieldRoute::put("products/{id}", "Api\ProductController
+update")->name("products.update");# Sử dụng patch nếu update 1 vài fieldRoute::patch("products/{id}", "Api\ProductController
+update")->name("products.update");// Xóa sản phẩm theo idRoute::delete("products/{id}", "Api\ProductController
+destroy")->name("products.destroy");Mặc định route đã được gán middleware bindings, nếu muốn sử dụng model binding trong controller thì chúng ta sửa lại tham số trong route như sau:
+
+Route::get("products/{product}", "Api\ProductController
+destroy")->name("products.destroy");Ngoài ra trong laravel cũng hỗ trợ chúng ta 1 cách khai báo ngắn gọn hơn:
+
+//Nếu không muốn sử dụng toàn bộ method trong apiResource mọi người có thể chỉ định sử dụng 1 vài method bằng hàm onlyRoute::apiResource("products", "Api\ProductController")->only(<"index", "show">);//Hoặc nếu muốn loại bỏ đi 1 số method không dùng thì có thể sử dụng hàm exceptRoute::apiResource("products", "Api\ProductController")->except(<"show", "update">);
+
+Resource Controllers
+Tương ứng với các Route RESTful đã khai báo ở trên, đặc biệt nếu dùng method apiResource thì laravel cũng hỗ trợ các method xử lí tương ứng trong controller.
+Để tạo ra Resource Controllers chúng ta chạy lệnh sau
+
+php artisan make:controller Api/ProductController -api
+
+File ProductController tạo ra sẽ như sauNgoài ra nếu muốn sử dụng model binding khi tạo Resource Controllers thì dùng lệnh bên dưới
+
+php artisan make:controller Api/ProductController --api --model=Models/Product
+
+File ProductController tạo ra sẽ như sau, chúng ta để ý tham số của các method show, update, destroy sẽ thay đổi 1 chút.
+
+Demo 1 đoạn code đơn giản trong controller kết hợp với model binding và route apiResource khi xây dựng API:
+
+all()); } /** * Display the specified resource. * *
+return Product */ public function show(Product $product) { return $product; } /** * Update the specified resource in storage. * *
+return bool */ public function update(Request $request, Product $product) { return $product->update($request->all()); } /** * Remove the specified resource from storage. * *
+throws \Exception */ public function destroy(Product $product) { $product->delete(); }}Mặc định khi sử dụng route apiResource thì dữ liệu trả về sẽ tự động được chuyển sang kiểu JSON và sẽ có status tương ứng nên chỉ cần return dữ liệu ra là được.
+
+Còn nếu muốn tùy biến status trả về thì có thể tham khảo cách phía dưới có sử dụng class Illuminate\Http\Response để lấy status thay vì fix giá trị vào ví dụ như HTTP_OK tương ứng sẽ là 200
+
+json($products, Response::HTTP_OK); }}Eloquent ResourcesKhi xây dựng API, bạn có thể cần transform dữ liệu từ controller trước khi trả về cho người dùng ứng dụng của bạn, laravel cũng đã hỗ trợ điều này với Eloquent Resources
+
+Để tạo ra 1 class chuyển đổi chúng ta chạy lệnh sau
+
+php artisan make:resource Product
+
+File app/Http/Resources/Product.php sẽ có nội dung như sau
+
+Mình sẽ tùy chỉnh dữ liệu trả về là chỉ có title và price
+
+$this->title, "price" => $this->price, >; }}
+
+Ở controller thì mình sẽ sửa lại như sau
+
+all()); return new ProductResource($product); } /** * Display the specified resource. * *
+return Product */ public function show(Product $product){ return new ProductResource($product); } /** * Update the specified resource in storage. * *
+return bool */ public function update(Request $request, Product $product){ return $product->update($request->all()); } /** * Remove the specified resource from storage. * *
+throws \Exception */ public function destroy(Product $product){ $product->delete(); }}Ngoài giới hạn dữ liệu trả về như title hay price, laravel cũng hỗ trợ rất nhiều thứ như thêm relationships, data …, mọi người có thể đọc thêm docs trên Laravel.
+
+Authorization
+Hiện tại có 3 cơ chế Authorize chính:
+
+HTTP BasicJSON Web Token (JWT)OAuth2
+Tùy thuộc vào service của bạn, mà hãy chọn loại Authorize có mức độ phù hợp, cố gắng giữ nó càng đơn giản càng tốt.
+
+CORS Policy
+Viết API thì cũng cần chú ý về CORS là gì?
+
+API Document
+Ai cũng biết việc viết API docs là cần thiết, tuy nhiên để có một API docs hoàn chỉnh cũng tiêu tốn khá nhiều thời gian. Nhất là trong lúc dự án gấp rút thì mọi người thường chỉ để API docs ở mức siêu cơ bản. Tham khảo thêm cách viết API Document.
+
+API document là một phần tương tự như Unit Test vậy – lấy ngắn để nuôi dài.
+
+Xem thêm: Overshoot Là Gì - Overshoot Nghĩa Là Gì Trong Tiếng Việt
+
+
+Nếu không được chăm sóc kỹ, thì đến lúc maintain hoặc thay đổi spec thì hậu quả sẽ rất thảm khốc, dưới đây là một số lưu ý lúc viết docs:
+
+Mô tả đầy đủ về params request: gồm những params nào, datatype, require hay optional.Nên đưa ra các ví dụ về HTTP requests và responses với data chuẩn.Cập nhật Docs thường xuyên, để sát nhất với API có bất cứ thay đổi gì.Format, cú pháp cần phải nhất quán, mô tả rõ ràng, chính xác.

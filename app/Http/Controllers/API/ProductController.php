@@ -9,12 +9,18 @@ use App\Http\Resources\Product as ProductResource;
 use Illuminate\Support\Facades\Validator;
 class ProductController extends BaseController
 {
+    /**
+     *
+     */
     public function index(){
         $product = Product::all();
 
         return $this->sendResponse(ProductResource::collection($product), 'Products retrieved successfully.');
     }
 
+    /**
+     *
+     */
     public function store(Request $request){
         $input = $request->all();
         $validator = Validator::make($input, [
@@ -30,6 +36,9 @@ class ProductController extends BaseController
 
     }
 
+    /**
+     *
+     */
     public function show($id) {
         $product = Product::find($id);
         if(is_null($product)){
@@ -40,6 +49,9 @@ class ProductController extends BaseController
 
     }
 
+    /**
+     *
+     */
     public function update(Request $request, Product $product){
         $input = $request->all();
 
@@ -60,6 +72,9 @@ class ProductController extends BaseController
 
     }
 
+    /**
+     *
+     */
     public function destroy(Product $product)
     {
         $product->delete();
